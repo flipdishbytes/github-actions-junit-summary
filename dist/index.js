@@ -27753,17 +27753,23 @@ function buildMarkdown(title, reports) {
   const all = reports.flatMap((r) => r.cases);
   const total = all.length;
   const passed = all.filter((c) => c.status === "passed").length;
-  const failed = all.filter((c) => c.status === "failed" || c.status === "errored").length;
+  const failed = all.filter(
+    (c) => c.status === "failed" || c.status === "errored"
+  ).length;
   const skipped = all.filter((c) => c.status === "skipped").length;
   const totalTime = all.reduce((s, c) => s + c.time, 0);
   const headline = failed === 0 ? `**All ${total} tests passed** in ${totalTime.toFixed(2)}s` : `**${passed}/${total} passed, ${failed} failed${skipped ? `, ${skipped} skipped` : ""}** in ${totalTime.toFixed(2)}s`;
   const lines = [`## ${title}`, headline, ""];
-  const failing = all.filter((c) => c.status === "failed" || c.status === "errored");
+  const failing = all.filter(
+    (c) => c.status === "failed" || c.status === "errored"
+  );
   if (failing.length > 0) {
     lines.push("### Failures", "");
     for (const c of failing) {
       const where = c.file ? ` \u2014 \`${c.file}${c.line ? `:${c.line}` : ""}\`` : "";
-      lines.push(`<details><summary>\u274C <code>${escapeHtml(c.classname || c.name)}</code> \u203A ${escapeHtml(c.name)}${where}</summary>`);
+      lines.push(
+        `<details><summary>\u274C <code>${escapeHtml(c.classname || c.name)}</code> \u203A ${escapeHtml(c.name)}${where}</summary>`
+      );
       lines.push("");
       lines.push("```");
       lines.push((c.body ?? c.message ?? "").slice(0, 4e3));
@@ -27808,7 +27814,14 @@ async function run(opts) {
   const files = await resolvePatterns(opts.patterns, cwd);
   if (files.length === 0) {
     log(`::warning::No JUnit XML files matched: ${opts.patterns.join(", ")}`);
-    const empty = { total: 0, passed: 0, failed: 0, skipped: 0, files: 0, markdown: "" };
+    const empty = {
+      total: 0,
+      passed: 0,
+      failed: 0,
+      skipped: 0,
+      files: 0,
+      markdown: ""
+    };
     setOutput2("total", 0);
     setOutput2("passed", 0);
     setOutput2("failed", 0);
@@ -27823,7 +27836,9 @@ async function run(opts) {
       const cases = parseJunitXml(xml);
       reports.push({ file, cases });
     } catch (err) {
-      log(`::error title=JUnit parse error::Failed to parse ${file}: ${err.message}`);
+      log(
+        `::error title=JUnit parse error::Failed to parse ${file}: ${err.message}`
+      );
     }
   }
   const all = reports.flatMap((r) => r.cases);
@@ -27838,7 +27853,9 @@ async function run(opts) {
   }
   const total = all.length;
   const passed = all.filter((c) => c.status === "passed").length;
-  const failed = all.filter((c) => c.status === "failed" || c.status === "errored").length;
+  const failed = all.filter(
+    (c) => c.status === "failed" || c.status === "errored"
+  ).length;
   const skipped = all.filter((c) => c.status === "skipped").length;
   setOutput2("total", total);
   setOutput2("passed", passed);
@@ -27858,8 +27875,13 @@ async function resolvePatterns(patterns, cwd) {
     for (const part of parts) {
       const abs = path.isAbsolute(part) ? part : path.resolve(cwd, part);
       if (fs.existsSync(abs) && fs.statSync(abs).isDirectory()) {
-        const found = await (0, import_fast_glob.default)("**/*.xml", { cwd: abs, onlyFiles: true, absolute: false });
-        for (const f of found) expanded.push(path.relative(cwd, path.join(abs, f)));
+        const found = await (0, import_fast_glob.default)("**/*.xml", {
+          cwd: abs,
+          onlyFiles: true,
+          absolute: false
+        });
+        for (const f of found)
+          expanded.push(path.relative(cwd, path.join(abs, f)));
       } else if (fs.existsSync(abs)) {
         expanded.push(path.relative(cwd, abs));
       } else {
@@ -27899,9 +27921,13 @@ async function runAsAction() {
       setOutput: (name, value) => core.setOutput(name, String(value)),
       setFailed: (msg) => core.setFailed(msg)
     });
-    core.info(`junit-summary: ${result.passed}/${result.total} passed, ${result.failed} failed, ${result.skipped} skipped across ${result.files} file(s)`);
+    core.info(
+      `junit-summary: ${result.passed}/${result.total} passed, ${result.failed} failed, ${result.skipped} skipped across ${result.files} file(s)`
+    );
   } catch (err) {
-    core.setFailed(`junit-summary crashed: ${err.stack ?? err.message}`);
+    core.setFailed(
+      `junit-summary crashed: ${err.stack ?? err.message}`
+    );
   }
 }
 

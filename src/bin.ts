@@ -1,3 +1,3 @@
-import { runAsAction } from './main.ts';
+import { runAsAction } from "./main.ts";
 
 void runAsAction();
