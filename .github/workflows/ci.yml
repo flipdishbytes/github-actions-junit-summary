@@ -73,3 +73,55 @@ jobs:
           echo "passed=${{ steps.junit.outputs.passed }}"
           echo "failed=${{ steps.junit.outputs.failed }}"
           echo "skipped=${{ steps.junit.outputs.skipped }}"
+
+  release:
+    name: Auto-release patch
+    needs: [test, dogfood-passing, dogfood-mixed]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: release
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Compute next version
+        id: ver
+        run: |
+          set -euo pipefail
+          latest=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n1)
+          if [[ -z "$latest" ]]; then
+            next="v1.0.0"
+          else
+            IFS='.' read -r major minor patch <<< "${latest#v}"
+            next="v${major}.${minor}.$((patch + 1))"
+          fi
+          major_tag="v$(cut -d. -f1 <<< "${next#v}")"
+          {
+            echo "next=$next"
+            echo "major=$major_tag"
+          } >> "$GITHUB_OUTPUT"
+          echo "Next version: $next (major tag: $major_tag)"
+
+      - name: Create and push tags
+        env:
+          NEXT: ${{ steps.ver.outputs.next }}
+          MAJOR: ${{ steps.ver.outputs.major }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$NEXT" -m "$NEXT"
+          git tag -f "$MAJOR"
+          git push origin "$NEXT"
+          git push origin "$MAJOR" --force
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEXT: ${{ steps.ver.outputs.next }}
+        run: gh release create "$NEXT" --generate-notes --latest --title "$NEXT"
