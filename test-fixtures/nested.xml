@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="root" tests="3" failures="0" errors="0" time="0.030">
+  <testsuite name="outer">
+    <testsuite name="inner.SuiteA" tests="2" failures="0" errors="0" time="0.020">
+      <testcase classname="inner.SuiteA" name="alpha" time="0.010"/>
+      <testcase classname="inner.SuiteA" name="beta" time="0.010"/>
+    </testsuite>
+    <testsuite name="inner.SuiteB" tests="1" failures="0" errors="0" time="0.010">
+      <testcase classname="inner.SuiteB" name="gamma" time="0.010"/>
+    </testsuite>
+  </testsuite>
+</testsuites>

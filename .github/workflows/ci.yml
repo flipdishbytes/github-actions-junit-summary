@@ -1,0 +1,73 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Build & test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm typecheck
+
+      - run: pnpm test
+
+      - run: pnpm build
+
+      - name: Verify dist/ is in sync with source
+        run: |
+          if ! git diff --exit-code -- dist/; then
+            echo "::error::dist/ is out of date. Run 'pnpm build' and commit the result." >&2
+            exit 1
+          fi
+
+  dogfood-passing:
+    name: Self-test — passing fixture
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run junit-summary on the passing fixture
+        uses: ./
+        with:
+          path: test-fixtures/passing.xml
+          title: 'Self-test: passing fixture'
+
+  dogfood-mixed:
+    name: Self-test — mixed fixture (failures expected)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run junit-summary on all fixtures
+        id: junit
+        uses: ./
+        with:
+          path: |
+            test-fixtures/passing.xml
+            test-fixtures/failing.xml
+            test-fixtures/mixed.xml
+            test-fixtures/nested.xml
+          title: 'Self-test: all fixtures'
+          fail-on-error: 'false'
+      - name: Show outputs
+        run: |
+          echo "total=${{ steps.junit.outputs.total }}"
+          echo "passed=${{ steps.junit.outputs.passed }}"
+          echo "failed=${{ steps.junit.outputs.failed }}"
+          echo "skipped=${{ steps.junit.outputs.skipped }}"

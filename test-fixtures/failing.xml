@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="4" failures="2" errors="0" time="0.210">
+  <testsuite name="checkout" tests="4" failures="2" errors="0" time="0.210">
+    <testcase classname="checkout.CartTest" name="adds item to cart" time="0.034"/>
+    <testcase classname="checkout.CartTest" name="removes item from cart" time="0.041">
+      <failure message="Expected cart to be empty but had 1 item">AssertionError: Expected cart to be empty but had 1 item
+    at Object.&lt;anonymous&gt; (src/cart.test.ts:22:18)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="checkout.CheckoutTest" name="calculates total" time="0.065"/>
+    <testcase classname="checkout.CheckoutTest" name="applies discount" time="0.070">
+      <failure message="Expected 90 to equal 85">AssertionError: Expected 90 to equal 85
+    at Object.&lt;anonymous&gt; (src/checkout.test.ts:57:10)</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

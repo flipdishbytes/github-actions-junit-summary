@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="mixed" tests="4" failures="1" errors="1" skipped="1" time="0.310">
+  <testsuite name="mixed" tests="4" failures="1" errors="1" skipped="1" time="0.310">
+    <testcase classname="mixed" name="happy path" time="0.050"/>
+    <testcase classname="mixed" name="broken assertion" time="0.100">
+      <failure message="Expected true">Expected true
+    at Object.&lt;anonymous&gt; (src/a.test.ts:10:3)</failure>
+    </testcase>
+    <testcase classname="mixed" name="setup exploded" time="0.080">
+      <error message="Cannot read properties of undefined">TypeError: Cannot read properties of undefined
+    at Object.&lt;anonymous&gt; (src/b.test.ts:5:1)</error>
+    </testcase>
+    <testcase classname="mixed" name="wip" time="0.080">
+      <skipped/>
+    </testcase>
+  </testsuite>
+</testsuites>

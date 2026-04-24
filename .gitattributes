@@ -1,0 +1,3 @@
+* text=auto eol=lf
+*.xml text eol=lf
+dist/index.js text eol=lf

@@ -1,0 +1,31 @@
+name: 'JUnit Summary'
+description: 'Parse JUnit XML into a GitHub Actions job summary and error annotations.'
+author: 'Flipdish'
+branding:
+  icon: 'check-square'
+  color: 'green'
+inputs:
+  path:
+    description: 'File, directory, or glob pattern pointing to JUnit XML result(s). Multiple patterns may be separated by newlines.'
+    required: false
+    default: '**/junit*.xml'
+  title:
+    description: 'Heading shown at the top of the markdown summary.'
+    required: false
+    default: 'Test Results'
+  fail-on-error:
+    description: 'If true, the action exits with failure when any test failed or errored.'
+    required: false
+    default: 'false'
+outputs:
+  total:
+    description: 'Total number of test cases discovered.'
+  passed:
+    description: 'Number of passing tests.'
+  failed:
+    description: 'Number of failing tests (failures + errors).'
+  skipped:
+    description: 'Number of skipped tests.'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
