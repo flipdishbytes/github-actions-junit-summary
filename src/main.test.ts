@@ -48,6 +48,19 @@ test("parseJunitXml: handles nested <testsuites>", () => {
 	assert.equal(cases[0]!.classname, "inner.SuiteA");
 });
 
+test("parseJunitXml: handles reports with more than 1000 XML entities", () => {
+	const entities = "&amp;".repeat(1200);
+	const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Suite" tests="1">
+  <testcase classname="Suite" name="test with many entities" time="0.001">
+    <failure message="Expected ${entities}">at ${entities}</failure>
+  </testcase>
+</testsuite>`;
+	const cases = parseJunitXml(xml);
+	assert.equal(cases.length, 1);
+	assert.equal(cases[0]!.status, "failed");
+});
+
 test("extractLocation: finds file/line in a node-style stack", () => {
 	const loc = extractLocation(
 		"AssertionError: boom\n    at Object.<anonymous> (src/util.ts:42:7)\n    at Module._compile",

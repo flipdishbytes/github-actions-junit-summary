@@ -48,6 +48,11 @@ const parser = new XMLParser({
 	trimValues: true,
 	isArray: (name) =>
 		["testsuite", "testcase", "failure", "error", "skipped"].includes(name),
+	// JUnit reports with long failure messages can legitimately contain more
+	// than fast-xml-parser's default 1000-entity expansion cap.
+	processEntities: {
+		maxTotalExpansions: 100_000,
+	},
 });
 
 export function parseJunitXml(xml: string): TestCase[] {
