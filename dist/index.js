@@ -27782,15 +27782,35 @@ function buildMarkdown(title, reports) {
       lines.push("</details>", "");
     }
   }
-  lines.push("### All tests", "");
-  lines.push("| Status | Test | Time |");
-  lines.push("|--------|------|------|");
-  for (const c of all) {
-    const icon = statusIcon(c.status);
-    const name = c.classname ? `${c.classname} \u203A ${c.name}` : c.name;
-    lines.push(`| ${icon} | ${escapeMd(name)} | ${c.time.toFixed(3)}s |`);
+  if (failed === 0) {
+    lines.push("### All tests", "");
+    lines.push("| Class | Tests | Time |");
+    lines.push("|-------|-------|------|");
+    for (const { classname, count, time } of groupByClass(all)) {
+      lines.push(`| ${escapeMd(classname)} | ${count} | ${time.toFixed(3)}s |`);
+    }
+  } else {
+    lines.push("### All tests", "");
+    lines.push("| Status | Test | Time |");
+    lines.push("|--------|------|------|");
+    for (const c of all) {
+      const icon = statusIcon(c.status);
+      const name = c.classname ? `${c.classname} \u203A ${c.name}` : c.name;
+      lines.push(`| ${icon} | ${escapeMd(name)} | ${c.time.toFixed(3)}s |`);
+    }
   }
   return lines.join("\n") + "\n";
+}
+function groupByClass(cases) {
+  const groups = /* @__PURE__ */ new Map();
+  for (const c of cases) {
+    const key = c.classname || c.name;
+    const g = groups.get(key) ?? { count: 0, time: 0 };
+    g.count += 1;
+    g.time += c.time;
+    groups.set(key, g);
+  }
+  return [...groups.entries()].map(([classname, g]) => ({ classname, ...g })).sort((a, b) => a.classname.localeCompare(b.classname));
 }
 function statusIcon(s) {
   switch (s) {

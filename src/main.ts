@@ -199,15 +199,40 @@ export function buildMarkdown(title: string, reports: ParsedReport[]): string {
 		}
 	}
 
-	lines.push("### All tests", "");
-	lines.push("| Status | Test | Time |");
-	lines.push("|--------|------|------|");
-	for (const c of all) {
-		const icon = statusIcon(c.status);
-		const name = c.classname ? `${c.classname} › ${c.name}` : c.name;
-		lines.push(`| ${icon} | ${escapeMd(name)} | ${c.time.toFixed(3)}s |`);
+	if (failed === 0) {
+		lines.push("### All tests", "");
+		lines.push("| Class | Tests | Time |");
+		lines.push("|-------|-------|------|");
+		for (const { classname, count, time } of groupByClass(all)) {
+			lines.push(`| ${escapeMd(classname)} | ${count} | ${time.toFixed(3)}s |`);
+		}
+	} else {
+		lines.push("### All tests", "");
+		lines.push("| Status | Test | Time |");
+		lines.push("|--------|------|------|");
+		for (const c of all) {
+			const icon = statusIcon(c.status);
+			const name = c.classname ? `${c.classname} › ${c.name}` : c.name;
+			lines.push(`| ${icon} | ${escapeMd(name)} | ${c.time.toFixed(3)}s |`);
+		}
 	}
 	return lines.join("\n") + "\n";
+}
+
+function groupByClass(
+	cases: TestCase[],
+): { classname: string; count: number; time: number }[] {
+	const groups = new Map<string, { count: number; time: number }>();
+	for (const c of cases) {
+		const key = c.classname || c.name;
+		const g = groups.get(key) ?? { count: 0, time: 0 };
+		g.count += 1;
+		g.time += c.time;
+		groups.set(key, g);
+	}
+	return [...groups.entries()]
+		.map(([classname, g]) => ({ classname, ...g }))
+		.sort((a, b) => a.classname.localeCompare(b.classname));
 }
 
 function statusIcon(s: TestCase["status"]): string {
