@@ -90,6 +90,15 @@ test("buildMarkdown: summarizes mixed results with failure detail blocks", () =>
 	assert.match(md, /\|\s*:fast_forward:\s*\|/);
 });
 
+test("buildMarkdown: collapses to a per-class summary when everything passes", () => {
+	const xml = fs.readFileSync(path.join(fixtures, "passing.xml"), "utf8");
+	const cases = parseJunitXml(xml);
+	const md = buildMarkdown("Unit tests", [{ file: "passing.xml", cases }]);
+	assert.match(md, /### All tests/);
+	assert.match(md, /\| Class \| Tests \| Time \|/);
+	assert.doesNotMatch(md, /:white_check_mark:/);
+});
+
 test("run: end-to-end over fixtures produces summary, outputs, and annotations", async () => {
 	const outputs: Record<string, string> = {};
 	const logLines: string[] = [];
